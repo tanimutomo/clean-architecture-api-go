@@ -38,7 +38,9 @@ func (controller *ArticleController) VerifyUser(c Context) {
 func (controller *ArticleController) PostArticle(c Context) {
 	uid, _ := strconv.Atoi(c.Param("userID"))
 	article := domain.Article{UserID: uid}
-	c.Bind(&article)
+	if err := c.Bind(&article); err != nil {
+		// TODO
+	}
 
 	article, err := controller.Service.PostArticle(article)
 	if err != nil {
@@ -83,10 +85,13 @@ func (controller *ArticleController) GetArticleByID(c Context) {
 }
 
 func (controller *ArticleController) AddTag(c Context) {
+	uid, _ := strconv.Atoi(c.Param("userID"))
 	aid, _ := strconv.Atoi(c.Param("articleID"))
 
-	tag := domain.Tag{ArticleID: aid}
-	c.Bind(&tag)
+	tag := domain.Tag{ArticleID: aid, UserID: uid}
+	if err := c.Bind(&tag); err != nil {
+		// TODO
+	}
 	tag, err := controller.Service.AddTags(tag)
 	if err != nil {
 		// TODO

@@ -32,7 +32,9 @@ func NewUserController(
 
 func (controller *UserController) Signup(c Context) {
 	user := domain.User{}
-	c.Bind(&user)
+	if err := c.Bind(&user); err != nil {
+		// TODO
+	}
 	user, err := controller.Service.Signup(user)
 	if err != nil {
 		// TODO
@@ -43,7 +45,9 @@ func (controller *UserController) Signup(c Context) {
 
 func (controller *UserController) Login(c Context) {
 	loginUser := domain.LoginUser{}
-	c.Bind(&loginUser)
+	if err := c.Bind(&loginUser); err != nil {
+		// TODO
+	}
 	user, token, err := controller.Service.Login(loginUser)
 	if err != nil {
 		// TODO

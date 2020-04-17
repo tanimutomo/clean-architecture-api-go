@@ -6,24 +6,15 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	jwtrequest "github.com/dgrijalva/jwt-go/request"
+	"github.com/tanimutomo/clean-architecture-api-go/interfaces/token"
 )
 
-func (c Context) {
-		_, err := jwtrequest.ParseFromRequest(
-			c.Request, jwtrequest.OAuth2Extractor,
-			func(token *jwt.Token) (interface{}, error) {
-				b := []byte(os.Getenv("SASG_SECRET"))
-				return b, nil
-			},
-		)
-		if err != nil {
-			UnauthorizedError(c, "Invalid token. "+err.Error())
-			return
-		}
-	}
+type TokenHandler struct {}
+
+func NewTokenHandler() token.TokenHandler {
 }
 
-func GetToken(user User) string {
+func (handler *TokenHandler) Generate(uid int, username string, email string) (string, error) {
 	// set header
 	token := jwt.New(jwt.SigningMethodHS256)
 
@@ -38,4 +29,14 @@ func GetToken(user User) string {
 	tokenString, _ := token.SignedString([]byte(os.Getenv("SASG_SECRET")))
 
 	return tokenString
+}
+
+func (handler *TokenHandler) Verify(tokenString, string) (error) {
+	_, err := jwt.Parse(tokenString string,
+		func (token *jwt.Token) (interface{}, error) {
+			b := []byte(os.Getenv("SASG_SECRET"))
+			return b, nil
+		}
+	)
+	return error
 }
