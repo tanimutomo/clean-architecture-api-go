@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/tanimutomo/clean-architecture-api-go/domain"
 	"github.com/tanimutomo/clean-architecture-api-go/interfaces/database"
@@ -16,8 +15,8 @@ type UserController struct {
 
 func NewUserController(
 	dbHandler database.DBHandler,
-	tokenHandler token.TokenHandler
-	) *UserController {
+	tokenHandler token.TokenHandler,
+) *UserController {
 	return &UserController{
 		Service: service.UserService{
 			Repository: &database.UserRepository{
@@ -53,20 +52,21 @@ func (controller *UserController) Login(c Context) {
 		// TODO
 		return
 	}
-	c.JSON(http.StatusOK, {"user":, user, "token": token})
+	c.JSON(http.StatusOK, map[string]interface{}{"user": user, "token": token})
 }
 
 func (controller *UserController) Authenticate(c Context) {
 	// Get token from request header
-	token := domain.Token{}
-	token, err = c.Request.Header.Get("token")
+	header := domain.TokenHeader{}
+	err := c.BindHeader(header)
 	if err != nil {
 		// TODO
 		return
 	}
 
 	// Verify token
-	err := controller.Service.Authenticate(id)
+	tokenString := domain.Token(header.Authentication)
+	err = controller.Service.Authenticate(tokenString)
 	if err != nil {
 		// TODO: Send error response and abort
 		return

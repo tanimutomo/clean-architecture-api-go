@@ -13,7 +13,7 @@ func (repo *ArticleRepository) Store(article domain.Article) (domain.Article, er
 	return article, err
 }
 
-func (repo *ArticleRepository) FindOneById(id int) (domain.Article, error) {
+func (repo *ArticleRepository) FindOneByID(id int) (domain.Article, error) {
 	var article domain.Article
 	err := repo.First(&article, id).Error
 	return article, err

@@ -13,12 +13,11 @@ type DBHandler struct {
 }
 
 func NewDBHandler() database.DBHandler {
-	DBMS := os.Getenv("SASG_DBMS")
-	USER := os.Getenv("SASG_USER")
-	PASS := os.Getenv("SASG_PASS")
-	DBNAME := os.Getenv("SASG_DBNAME")
-	CONNECT := (USER + ":" + PASS + "@/" + DBNAME 
-				+ "?charset=utf8&parseTime=true&loc=Local")
+	DBMS := os.Getenv("CAAG_DBMS")
+	USER := os.Getenv("CAAG_USER")
+	PASS := os.Getenv("CAAG_PASS")
+	DBNAME := os.Getenv("CAAG_DBNAME")
+	CONNECT := USER + ":" + PASS + "@/" + DBNAME + "?charset=utf8&parseTime=true&loc=Local"
 	conn, err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
 		// TODO
@@ -45,10 +44,14 @@ func (handler *DBHandler) Raw(query string, values ...interface{}) *gorm.DB {
 }
 
 func (handler *DBHandler) Create(values interface{}) *gorm.DB {
-	return handler.Conn.Crewate(values)
+	return handler.Conn.Create(values)
 }
 
-func (handler *DBHandler) Save(value interface{}) *grom.DB {
+func (handler *DBHandler) Save(value interface{}) *gorm.DB {
+	return handler.Conn.Delete(value)
+}
+
+func (handler *DBHandler) Delete(value interface{}) *gorm.DB {
 	return handler.Conn.Delete(value)
 }
 

@@ -1,8 +1,6 @@
 package infrastructure
 
 import (
-	"log"
-
 	"github.com/joho/godotenv"
 )
 

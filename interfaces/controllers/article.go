@@ -13,7 +13,7 @@ type ArticleController struct {
 	Service service.ArticleService
 }
 
-func NewArticleController(dbHandler, database.DBHandler) *ArticleController {
+func NewArticleController(dbHandler database.DBHandler) *ArticleController {
 	return &ArticleController{
 		Service: service.ArticleService{
 			ArticleRepository: &database.ArticleRepository{
@@ -92,7 +92,7 @@ func (controller *ArticleController) AddTag(c Context) {
 	if err := c.Bind(&tag); err != nil {
 		// TODO
 	}
-	tag, err := controller.Service.AddTags(tag)
+	tag, err := controller.Service.AddTag(tag)
 	if err != nil {
 		// TODO
 		return

@@ -8,7 +8,7 @@ type UserRepository struct {
 	DBHandler
 }
 
-func (repo *UserRepository) FindById(id int) (domain.User, error) {
+func (repo *UserRepository) FindByID(id int) (domain.User, error) {
 	var user domain.User
 	err := repo.First(&user, id).Error
 	return user, err

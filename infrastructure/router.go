@@ -1,6 +1,8 @@
 package infrastructure
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/tanimutomo/clean-architecture-api-go/interfaces/controllers"
 )
@@ -15,10 +17,10 @@ func init() {
 	router := gin.Default()
 
 	userController := controllers.NewUserController(
-		NewDBHandler(), NewTokenHandler()
+		NewDBHandler(), NewTokenHandler(),
 	)
 	articleController := controllers.NewArticleController(
-		NewDBHandler()
+		NewDBHandler(),
 	)
 
 	router.POST("/signup", func(c *gin.Context) {
@@ -28,34 +30,33 @@ func init() {
 		userController.Login(c)
 	})
 
-	inUserRouter := r.Group("/users/:userID",
-		func(c *gin.Context) { userController.Authenticate() }
+	inUserRouter := router.Group("/users/:userID",
+		func(c *gin.Context) { userController.Authenticate(c) },
 	)
 	{
 		// Article
 		inUserRouter.POST("/articles",
-			func(c *gin.Context) { articleController.PostArticle() }
+			func(c *gin.Context) { articleController.PostArticle(c) },
 		)
 		inUserRouter.GET("/articles",
-			func(c *gin.Context) { articleController.GetAllArticles() }
+			func(c *gin.Context) { articleController.GetAllArticles(c) },
 		)
 		inUserRouter.GET("/tags",
-			func(c *gin.Context) { articleController.GetAllTags() }
+			func(c *gin.Context) { articleController.GetAllTags(c) },
 		)
 
-		
-		inArticleRouter := r.Group("/articles/:articleID", 
-			func(c *gin.Context) { articleController.VerifyUser() }
+		inArticleRouter := inUserRouter.Group("/articles/:articleID",
+			func(c *gin.Context) { articleController.VerifyUser(c) },
 		)
 		{
-			inArticleRouter.GET("/", 
-				func(c *gin.Context) { articleController.GetArticleByID() }
+			inArticleRouter.GET("/",
+				func(c *gin.Context) { articleController.GetArticleByID(c) },
 			)
 			inArticleRouter.POST("/tags",
-				func(c *gin.Context) { articleController.AddTag() }
+				func(c *gin.Context) { articleController.AddTag(c) },
 			)
-			inArticleRouter.GET("/tags", 
-				func(c *gin.Context) { articleController.GetTagsByArticleID() }
+			inArticleRouter.GET("/tags",
+				func(c *gin.Context) { articleController.GetTagsByArticleID(c) },
 			)
 		}
 	}

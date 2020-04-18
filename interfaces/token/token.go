@@ -9,10 +9,9 @@ type Token struct {
 }
 
 func (token *Token) New(user domain.User) (domain.Token, error) {
-	var generatedToken &domain.Token
-	tokenString, err := token.Generate(user.ID, user.Name, user.Email)
-	generatedToken = *tokenString
-	return generatedToken, err
+	generatedToken, err := token.Generate(user.ID, user.Name, user.Email)
+	tokenString := domain.Token(generatedToken)
+	return tokenString, err
 }
 
 func (token *Token) Verify(tokenString domain.Token) error {

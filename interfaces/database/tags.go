@@ -13,10 +13,10 @@ func (repo *TagRepository) Store(tag domain.Tag) (domain.Tag, error) {
 	return tag, err
 }
 
-func (repo *TagRepository) FindAllByUserID(uid int) (domain.Tag, error) {
-	var tag domain.Tag
-	err := repo.Find(&tag, "user_id = ?", uid).Error
-	return tag, err
+func (repo *TagRepository) FindAllByUserID(uid int) (domain.Tags, error) {
+	var tags domain.Tags
+	err := repo.Find(&tags, "user_id = ?", uid).Error
+	return tags, err
 }
 
 func (repo *TagRepository) FindAllByArticleID(aid int) (domain.Tags, error) {

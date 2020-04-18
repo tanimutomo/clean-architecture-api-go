@@ -5,13 +5,13 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	jwtrequest "github.com/dgrijalva/jwt-go/request"
 	"github.com/tanimutomo/clean-architecture-api-go/interfaces/token"
 )
 
-type TokenHandler struct {}
+type TokenHandler struct{}
 
 func NewTokenHandler() token.TokenHandler {
+	return new(TokenHandler)
 }
 
 func (handler *TokenHandler) Generate(uid int, username string, email string) (string, error) {
@@ -20,23 +20,24 @@ func (handler *TokenHandler) Generate(uid int, username string, email string) (s
 
 	// set claims (json contents)
 	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = user.Username
-	claims["email"] = user.Email
+	claims["uid"] = uid
+	claims["username"] = username
+	claims["email"] = email
 	claims["iat"] = time.Now()
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
 	// signature
-	tokenString, _ := token.SignedString([]byte(os.Getenv("SASG_SECRET")))
+	tokenString, err := token.SignedString([]byte(os.Getenv("CAAG_SECRET")))
 
-	return tokenString
+	return tokenString, err
 }
 
-func (handler *TokenHandler) Verify(tokenString, string) (error) {
-	_, err := jwt.Parse(tokenString string,
-		func (token *jwt.Token) (interface{}, error) {
-			b := []byte(os.Getenv("SASG_SECRET"))
+func (handler *TokenHandler) Verify(tokenString string) error {
+	_, err := jwt.Parse(tokenString,
+		func(token *jwt.Token) (interface{}, error) {
+			b := []byte(os.Getenv("CAAG_SECRET"))
 			return b, nil
-		}
+		},
 	)
-	return error
+	return err
 }
