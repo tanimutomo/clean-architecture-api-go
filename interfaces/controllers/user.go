@@ -47,9 +47,10 @@ func (controller *UserController) Signup(c Context) {
 }
 
 func (controller *UserController) Login(c Context) {
-	loginUser := domain.LoginUser{}
+	var loginUser domain.LoginUser
 	if err := c.Bind(&loginUser); err != nil {
 		BadRequestError(c, "Invalid request format.")
+		return
 	}
 	user, token, err := controller.Service.Login(loginUser)
 	if err != nil {
@@ -64,15 +65,15 @@ func (controller *UserController) Login(c Context) {
 
 func (controller *UserController) Authenticate(c Context) {
 	// Get token from request header
-	header := domain.TokenHeader{}
-	err := c.BindHeader(header)
+	var header domain.HeaderWithToken
+	err := c.BindHeader(&header)
 	if err != nil {
 		BadRequestError(c, "Invalid request format.")
 		return
 	}
 
 	// Verify token
-	tokenString := domain.Token(header.Authentication)
+	tokenString := domain.Token(header.Authorization)
 	err = controller.Service.Authenticate(tokenString)
 	if err != nil {
 		switch e := err.(type) {
