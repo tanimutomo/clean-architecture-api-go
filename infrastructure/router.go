@@ -60,4 +60,6 @@ func init() {
 			)
 		}
 	}
+
+	Router = router
 }
