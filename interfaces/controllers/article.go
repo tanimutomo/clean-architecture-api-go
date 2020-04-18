@@ -109,6 +109,24 @@ func (controller *ArticleController) AddTag(c Context) {
 		BadRequestError(c, "Invalid request format.")
 		return
 	}
+
+	// Check same name tag is exists
+	if existTags, err := controller.Service.GetTagsByArticleID(aid); err != nil {
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
+		return
+	} else {
+		for _, existTag := range existTags {
+			if tag.Name == existTag.Name {
+				BadRequestError(c, "The requested tag is already attached to that article.")
+				return
+			}
+		}
+	}
+
+	// Add the requested tag to that article
 	tag, err := controller.Service.AddTag(tag)
 	if err != nil {
 		switch e := err.(type) {
