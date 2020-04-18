@@ -8,7 +8,7 @@ type Articles []Article
 
 type Article struct {
 	ID        int        `json:"id" gorm:"column:id;primary_key"`
-	Title     string     `json:"title" binding:"required" gorm:"column:id"`
+	Title     string     `json:"title" binding:"required" gorm:"column:title"`
 	Content   string     `json:"content" binding:"required" gorm:"column:content"`
 	UserID    int        `json:"userid" gorm:"column:user_id"`
 	CreatedAt *time.Time `json:"-"`
