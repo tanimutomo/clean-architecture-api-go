@@ -20,7 +20,7 @@ func NewDBHandler() database.DBHandler {
 	CONNECT := USER + ":" + PASS + "@/" + DBNAME + "?charset=utf8&parseTime=true&loc=Local"
 	conn, err := gorm.Open(DBMS, CONNECT)
 	if err != nil {
-		// TODO
+		panic(err)
 	}
 	dbHandler := new(DBHandler)
 	dbHandler.Conn = conn

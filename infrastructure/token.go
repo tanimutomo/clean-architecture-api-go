@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -8,36 +9,57 @@ import (
 	"github.com/tanimutomo/clean-architecture-api-go/interfaces/token"
 )
 
-type TokenHandler struct{}
+type TokenHandler struct {
+	Method *jwt.SigningMethodHMAC
+	Secret string
+}
 
 func NewTokenHandler() token.TokenHandler {
-	return new(TokenHandler)
+	tokenHandler := new(TokenHandler)
+	tokenHandler.Method = jwt.SigningMethodHS256
+	tokenHandler.Secret = os.Getenv("CAAG_SECRET")
+	if tokenHandler.Secret == "" {
+		panic("CAAG_SECRET env variable is not defined.")
+	}
+	return tokenHandler
 }
 
 func (handler *TokenHandler) Generate(uid int, username string, email string) (string, error) {
 	// set header
-	token := jwt.New(jwt.SigningMethodHS256)
+	token := jwt.New(handler.Method)
 
 	// set claims (json contents)
 	claims := token.Claims.(jwt.MapClaims)
-	claims["uid"] = uid
-	claims["username"] = username
+	claims["sub"] = uid
+	claims["name"] = username
 	claims["email"] = email
 	claims["iat"] = time.Now()
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
 	// signature
-	tokenString, err := token.SignedString([]byte(os.Getenv("CAAG_SECRET")))
-
-	return tokenString, err
+	tokenString, err := token.SignedString([]byte(handler.Secret))
+	if err != nil {
+		return tokenString, errors.New("Failed to generate a new token. " + err.Error())
+	}
+	return tokenString, nil
 }
 
-func (handler *TokenHandler) Verify(tokenString string) error {
-	_, err := jwt.Parse(tokenString,
-		func(token *jwt.Token) (interface{}, error) {
-			b := []byte(os.Getenv("CAAG_SECRET"))
-			return b, nil
-		},
-	)
-	return err
+func (handler *TokenHandler) VerifyToken(tokenString string) error {
+	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(handler.Secret), nil
+	})
+	if err != nil {
+		ve, ok := err.(*jwt.ValidationError)
+		if !ok {
+			return errors.New("Couldn't handle this token:" + err.Error())
+		}
+		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+			return errors.New("Not even a token")
+		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+			return errors.New("Token is either expired or not active yet")
+		} else {
+			return errors.New("Couldn't handle this token:" + err.Error())
+		}
+	}
+	return nil
 }

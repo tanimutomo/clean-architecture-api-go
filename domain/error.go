@@ -1,10 +1,10 @@
 package domain
 
-type ErrorResponse struct {
+type ErrorWithStatus struct {
 	Status  int
 	Message string
 }
 
-func (e *ErrorResponse) Error() string {
+func (e *ErrorWithStatus) Error() string {
 	return e.Message
 }

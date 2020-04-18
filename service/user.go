@@ -1,25 +1,35 @@
 package service
 
-import "github.com/tanimutomo/clean-architecture-api-go/domain"
+import (
+	"net/http"
+
+	"github.com/tanimutomo/clean-architecture-api-go/domain"
+)
 
 type UserRepository interface {
 	Store(domain.User) (domain.User, error)
 	FindByID(int) (domain.User, error)
 }
 
-type Token interface {
+type Tokenizer interface {
 	New(domain.User) (domain.Token, error)
 	Verify(domain.Token) error
 }
 
 type UserService struct {
 	Repository UserRepository
-	Token      Token
+	Tokenizer  Tokenizer
 }
 
 func (service *UserService) Signup(user domain.User) (domain.User, error) {
 	user, err := service.Repository.Store(user)
-	return user, err
+	if err != nil {
+		return user, &domain.ErrorWithStatus{
+			Status:  http.StatusInternalServerError,
+			Message: err.Error(),
+		}
+	}
+	return user, nil
 }
 
 func (service *UserService) Login(loginUser domain.LoginUser) (domain.User, domain.Token, error) {
@@ -27,18 +37,34 @@ func (service *UserService) Login(loginUser domain.LoginUser) (domain.User, doma
 
 	user, err := service.Repository.FindByID(loginUser.ID)
 	if err != nil {
-		return user, token, err
+		return user, token, &domain.ErrorWithStatus{
+			Status:  http.StatusInternalServerError,
+			Message: err.Error(),
+		}
+	} else if user.Password != loginUser.Password {
+		return user, token, &domain.ErrorWithStatus{
+			Status:  http.StatusBadRequest,
+			Message: "Invalid Password",
+		}
 	}
 
-	// Check Password
-	// TODO
-
 	// Generate a new token
-	token, err = service.Token.New(user)
-	return user, token, err
+	token, err = service.Tokenizer.New(user)
+	if err != nil {
+		return user, token, &domain.ErrorWithStatus{
+			Status:  http.StatusInternalServerError,
+			Message: err.Error(),
+		}
+	}
+	return user, token, nil
 }
 
 func (service *UserService) Authenticate(token domain.Token) error {
-	err := service.Token.Verify(token)
-	return err
+	if err := service.Tokenizer.Verify(token); err != nil {
+		return &domain.ErrorWithStatus{
+			Status:  http.StatusBadRequest,
+			Message: err.Error(),
+		}
+	}
+	return nil
 }

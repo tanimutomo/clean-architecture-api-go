@@ -22,7 +22,7 @@ func NewUserController(
 			Repository: &database.UserRepository{
 				DBHandler: dbHandler,
 			},
-			Token: &token.Token{
+			Tokenizer: &token.Tokenizer{
 				TokenHandler: tokenHandler,
 			},
 		},
@@ -32,11 +32,15 @@ func NewUserController(
 func (controller *UserController) Signup(c Context) {
 	user := domain.User{}
 	if err := c.Bind(&user); err != nil {
-		// TODO
+		BadRequestError(c, "Invalid request format.")
+		return
 	}
 	user, err := controller.Service.Signup(user)
 	if err != nil {
-		// TODO
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 	c.JSON(http.StatusOK, user)
@@ -45,11 +49,14 @@ func (controller *UserController) Signup(c Context) {
 func (controller *UserController) Login(c Context) {
 	loginUser := domain.LoginUser{}
 	if err := c.Bind(&loginUser); err != nil {
-		// TODO
+		BadRequestError(c, "Invalid request format.")
 	}
 	user, token, err := controller.Service.Login(loginUser)
 	if err != nil {
-		// TODO
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{"user": user, "token": token})
@@ -60,7 +67,7 @@ func (controller *UserController) Authenticate(c Context) {
 	header := domain.TokenHeader{}
 	err := c.BindHeader(header)
 	if err != nil {
-		// TODO
+		BadRequestError(c, "Invalid request format.")
 		return
 	}
 
@@ -68,7 +75,10 @@ func (controller *UserController) Authenticate(c Context) {
 	tokenString := domain.Token(header.Authentication)
 	err = controller.Service.Authenticate(tokenString)
 	if err != nil {
-		// TODO: Send error response and abort
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 }

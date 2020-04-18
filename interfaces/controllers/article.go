@@ -30,7 +30,10 @@ func (controller *ArticleController) VerifyUser(c Context) {
 	uid, _ := strconv.Atoi(c.Param("userID"))
 	aid, _ := strconv.Atoi(c.Param("articleID"))
 	if err := controller.Service.VerifyUser(uid, aid); err != nil {
-		// TODO: c.Abort()
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 }
@@ -39,12 +42,16 @@ func (controller *ArticleController) PostArticle(c Context) {
 	uid, _ := strconv.Atoi(c.Param("userID"))
 	article := domain.Article{UserID: uid}
 	if err := c.Bind(&article); err != nil {
-		// TODO
+		BadRequestError(c, "Invalid request format.")
+		return
 	}
 
 	article, err := controller.Service.PostArticle(article)
 	if err != nil {
-		// TODO
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 	c.JSON(http.StatusOK, article)
@@ -66,7 +73,10 @@ func (controller *ArticleController) GetAllTags(c Context) {
 
 	tags, err := controller.Service.GetAllTags(uid)
 	if err != nil {
-		// TODO
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 
@@ -78,7 +88,10 @@ func (controller *ArticleController) GetArticleByID(c Context) {
 
 	article, err := controller.Service.GetArticleByID(aid)
 	if err != nil {
-		// TODO
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 	c.JSON(http.StatusOK, article)
@@ -90,11 +103,15 @@ func (controller *ArticleController) AddTag(c Context) {
 
 	tag := domain.Tag{ArticleID: aid, UserID: uid}
 	if err := c.Bind(&tag); err != nil {
-		// TODO
+		BadRequestError(c, "Invalid request format.")
+		return
 	}
 	tag, err := controller.Service.AddTag(tag)
 	if err != nil {
-		// TODO
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 
@@ -106,7 +123,10 @@ func (controller *ArticleController) GetTagsByArticleID(c Context) {
 
 	tags, err := controller.Service.GetTagsByArticleID(aid)
 	if err != nil {
-		// TODO
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 
