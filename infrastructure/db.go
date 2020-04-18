@@ -5,6 +5,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/tanimutomo/clean-architecture-api-go/domain"
 	"github.com/tanimutomo/clean-architecture-api-go/interfaces/database"
 )
 
@@ -24,6 +25,12 @@ func NewDBHandler() database.DBHandler {
 	}
 	dbHandler := new(DBHandler)
 	dbHandler.Conn = conn
+
+	// Migrate
+	dbHandler.Conn.AutoMigrate(&domain.User{})
+	dbHandler.Conn.AutoMigrate(&domain.Article{})
+	dbHandler.Conn.AutoMigrate(&domain.Tag{})
+
 	return dbHandler
 }
 
