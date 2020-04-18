@@ -62,7 +62,10 @@ func (controller *ArticleController) GetAllArticles(c Context) {
 
 	articles, err := controller.Service.GetAllArticles(uid)
 	if err != nil {
-		// TODO
+		switch e := err.(type) {
+		case *domain.ErrorWithStatus:
+			SendErrorResponse(c, e.Status, e.Message)
+		}
 		return
 	}
 	c.JSON(http.StatusOK, articles)
