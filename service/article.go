@@ -4,23 +4,12 @@ import (
 	"net/http"
 
 	"github.com/tanimutomo/clean-architecture-api-go/domain"
+	"github.com/tanimutomo/clean-architecture-api-go/interfaces/database"
 )
 
-type ArticleRepository interface {
-	Store(domain.Article) (domain.Article, error)
-	FindOneByID(int) (domain.Article, error)
-	FindAllByUserID(int) (domain.Articles, error)
-}
-
-type TagRepository interface {
-	Store(domain.Tag) (domain.Tag, error)
-	FindAllByUserID(int) (domain.Tags, error)
-	FindAllByArticleID(int) (domain.Tags, error)
-}
-
 type ArticleService struct {
-	ArticleRepository ArticleRepository
-	TagRepository     TagRepository
+	ArticleRepository database.ArticleRepository
+	TagRepository     database.TagRepository
 }
 
 func (service *ArticleService) VerifyUser(uid int, aid int) error {

@@ -4,21 +4,13 @@ import (
 	"net/http"
 
 	"github.com/tanimutomo/clean-architecture-api-go/domain"
+	"github.com/tanimutomo/clean-architecture-api-go/interfaces/database"
+	"github.com/tanimutomo/clean-architecture-api-go/interfaces/token"
 )
 
-type UserRepository interface {
-	Store(domain.User) (domain.User, error)
-	FindByID(int) (domain.User, error)
-}
-
-type Tokenizer interface {
-	New(domain.User) (domain.Token, error)
-	Verify(domain.Token) error
-}
-
 type UserService struct {
-	Repository UserRepository
-	Tokenizer  Tokenizer
+	Repository database.UserRepository
+	Tokenizer  token.Tokenizer
 }
 
 func (service *UserService) Signup(user domain.User) (domain.User, error) {

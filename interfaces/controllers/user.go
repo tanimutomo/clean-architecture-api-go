@@ -19,10 +19,10 @@ func NewUserController(
 ) *UserController {
 	return &UserController{
 		Service: service.UserService{
-			Repository: &database.UserRepository{
+			Repository: &database.UserRepositoryImpl{
 				DBHandler: dbHandler,
 			},
-			Tokenizer: &token.Tokenizer{
+			Tokenizer: &token.TokenizerImpl{
 				TokenHandler: tokenHandler,
 			},
 		},

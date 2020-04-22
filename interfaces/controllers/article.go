@@ -16,10 +16,10 @@ type ArticleController struct {
 func NewArticleController(dbHandler database.DBHandler) *ArticleController {
 	return &ArticleController{
 		Service: service.ArticleService{
-			ArticleRepository: &database.ArticleRepository{
+			ArticleRepository: &database.ArticleRepositoryImpl{
 				DBHandler: dbHandler,
 			},
-			TagRepository: &database.TagRepository{
+			TagRepository: &database.TagRepositoryImpl{
 				DBHandler: dbHandler,
 			},
 		},
