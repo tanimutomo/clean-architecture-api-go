@@ -1,8 +1,6 @@
 package infrastructure
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 	"github.com/tanimutomo/clean-architecture-api-go/interfaces/controllers"
 )
@@ -10,10 +8,6 @@ import (
 var Router *gin.Engine
 
 func init() {
-	if err := LoadEnv(); err != nil {
-		log.Fatal(err)
-	}
-
 	router := gin.Default()
 
 	userController := controllers.NewUserController(
